@@ -1,0 +1,7 @@
+大体步骤:
+1首先将原始的jpg图片存入到lmdb格式的数据库中
+2生成图像的均值文件mean.binaryproto
+3设计网络的train_test.prototxt和deploy.prototxt
+4配置网络的solver.prototxt设置各种参数
+5写脚步训练和测试模型,及应用模型,基于bash脚步和python语言
+
