@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
 				for class_str in class_name:
 					result = content.find(class_str)   #如果找到返回字符串中的索引,否则返回-1
-					print('class_str0=', class_str)
+					#print('class_str0=', class_str)
 					if result != -1:                   #识别到要找的类
 						class_index = class_name.index(class_str)  #返回要找的类别
 						# print('class_str1=', class_str)
