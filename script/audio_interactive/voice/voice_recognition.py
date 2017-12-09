@@ -3,6 +3,7 @@
 import pyaudio
 import wave
 import sys
+import numpy as np
 from aip import AipSpeech
 
 
@@ -45,8 +46,6 @@ class voice_recognition(object):
 			data = stream.read(CHUNK)
 			frames.append(data)
 
-		print("Please wait for recognizing ...")
-
 		stream.stop_stream()
 		stream.close()
 		p.terminate()
@@ -60,18 +59,51 @@ class voice_recognition(object):
 
 		return self._WAVE_OUTPUT_FILENAME
 
+
+	# 判断是否有声音录入,有则返回1,无返回0,读取录制好的音频,看它的帧数
+	def speaking(self, audiofile, threshold=70):
+		wavfile = wave.open(audiofile, "rb")
+		# print(wavfile)
+		params = wavfile.getparams()
+		framesra,frameswav= params[2],params[3]
+		datawav = wavfile.readframes(frameswav)
+		datause = np.fromstring(datawav,dtype = np.short)
+		average = np.average(abs(datause),weights=abs(datause))
+		time = np.arange(0, frameswav) * (1.0/framesra)
+		# print(abs(datause))
+		# print('datause=', datause)
+		# print('time=', time)
+		# print('average=', average) #计算加权平均,提升输出值大权重的占比
+		if average > threshold:    #大于阈值,有声音录入
+			return True
+		else:
+			return False
+
 	# recognition the voice
 	def recognition(self):
 		# aipSpeech.setConnectionTimeoutInMillis(3000)
 		# aipSpeech.setSocketTimeoutInMillis(5000)
 		file_name = self.record()   #调用录音函数
-		with open(file_name, 'rb') as wav_file:
-			# 识别本地文件
-			# a= aipSpeech.asr(get_file_content('public/test.pcm'), 'pcm', 16000, { 'lan': 'zh',})
-			a =self._aipSpeech.asr(wav_file.read(), 'wav', 16000, { 'lan': 'zh',})
-			# print(a)
-			print('human:', a['result'][0].strip().strip('，'))
+		if self.speaking(file_name):  #有声音录入
+			print("Please wait for recognizing ...")
+			with open(file_name, 'rb') as wav_file:
+				# 识别本地文件
+				#print(type(wav_file))
+				# a= aipSpeech.asr(get_file_content('public/test.pcm'), 'pcm', 16000, { 'lan': 'zh',})
+				reponse_result =self._aipSpeech.asr(wav_file.read(), 'wav', 16000, { 'lan': 'zh',})
+				if len(reponse_result)>3:    #识别错误后返回3个长度的字典
+					rec_content = reponse_result['result'][0].strip().strip('，')
+					print('human:', rec_content)
+					return rec_content
+				else:
+					print(reponse_result)
+					print("robot: sorry, I can't listen clearly!")
+					return ''    # 如果识别失败返回空字符
+		else:
+			print('robot: Please continue to speak!')
+			return ''           # 如果没有声音录入也返回空字符
 
 if __name__ == '__main__':
 	voice = voice_recognition()  #实例化一个类
-	voice.recognition()          #调用识别函数
+	content = voice.recognition()          #调用识别函数
+	# print(content)

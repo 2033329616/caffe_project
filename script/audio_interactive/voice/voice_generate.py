@@ -38,7 +38,8 @@ class voice_synthesis(object):
 		if os.path.exists('temp.wav'):
 			os.remove('temp.wav')
 		os.system('ffmpeg -i ' + file_name + ' temp.wav')   #将mped格式音频转换为wave格式
-		
+		print('robot:', audio_str)
+
 		with wave.open('temp.wav', 'rb') as wf:
 			# instantiate PyAudio (1)
 			p = pyaudio.PyAudio()
