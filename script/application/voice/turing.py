@@ -32,5 +32,6 @@ class turing(object):
 if __name__ == '__main__': 
 	understand = turing() #初始化图灵机器人类
 	while True:
-		content = understand.interactive('你好机器人')
-		print(content)
+		question = input('human:')
+		content = understand.interactive(question)
+		print('robot:', content)

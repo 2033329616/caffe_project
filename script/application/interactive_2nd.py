@@ -48,8 +48,8 @@ if __name__ == '__main__':
 		content = robot_rec.recognition()    #返回语音识别的内容
 		if content != '':                    #已经识别成功,开始交互
 			if ('图像' in content) or ('图片' in content) :
-				print(content)
-				print('robot: 开始识别图像')
+				# #print(content)
+				# #print('robot: 开始识别图像')
 				voice.play_audio('我已经开始识别图像了')
 				time.sleep(1)
 

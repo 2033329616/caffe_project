@@ -65,6 +65,7 @@ class Net_Object(object):
 		print('{:>15}{:>3}{:^15}{:<20}'.format('class', ' ', 'class_num', 'probability'))
 		print('{:>15}{:>3}{:^15}{:<20}'.format(self._labels[class_num], ' ', class_num, '%.3f' % self._output_prob[class_num]))
 		print('--------------------------------------------')
+		return class_num   #返回识别到的类别号,0~9共10类
 		# top_k = net.blobs['prob'].data[0].flatten().argsort()[-1:-6:-1]
 		# for i in np.arange(top_k.size):
 		# print top_k[i], labels[top_k[i]]
@@ -103,7 +104,7 @@ class Net_Object(object):
 			bx.text(score + 7, pos, '%.4f' % score, ha='center', va='center', fontsize=6)
 		fig.tight_layout(rect=(0,0,0.95,0.9))  #the distance between the subplot 
 		# print(help(fig.tight_layout))   #(left, bottom, right, top) (0, 0, 1, 1)
-		plt.show() 
+		plt.show()
 
 
 if __name__ == '__main__':
