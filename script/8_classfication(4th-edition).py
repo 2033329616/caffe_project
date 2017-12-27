@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import caffe
+import os
 
 # 设置当前目录
 # import sys
@@ -56,19 +57,20 @@ class Net_Object(object):
 		prob_out = self._net.forward()              # a dictionary which storges the probability of all class
 		# {'prob': array([[  2.13724487e-02, .... ,2.64757383e-03]], dtype=float32)}
 		self._output_prob = prob_out['prob'][0]
-		print(self._output_prob)
+		# print(self._output_prob)
 
 		class_num = self._output_prob.argmax()  # find the number of the max probability
 		self._labels = np.loadtxt(self._labels_file, str, delimiter='\n')  # read the txt && storge in the nparray
-		print(self._labels)
-		print('--------------------------------------------')
-		print('{:>15}{:>3}{:^15}{:<20}'.format('class', ' ', 'class_num', 'probability'))
-		print('{:>15}{:>3}{:^15}{:<20}'.format(self._labels[class_num], ' ', class_num, '%.3f' % self._output_prob[class_num]))
-		print('--------------------------------------------')
+		# print(self._labels)
+		# print('--------------------------------------------')
+		# print('{:>15}{:>3}{:^15}{:<20}'.format('class', ' ', 'class_num', 'probability'))
+		# print('{:>15}{:>3}{:^15}{:<20}'.format(self._labels[class_num], ' ', class_num, '%.3f' % self._output_prob[class_num]))
+		# print('--------------------------------------------')
 		# top_k = net.blobs['prob'].data[0].flatten().argsort()[-1:-6:-1]
 		# for i in np.arange(top_k.size):
 		# print top_k[i], labels[top_k[i]]
 		# show the image
+		return class_num  #return the number of the predicting result
 
 	def show_image(self):
 		img = cv2.imread(self._image, 1)
@@ -100,7 +102,7 @@ class Net_Object(object):
 		bx.set_xlabel('probability')
 		bx.set_ylabel('class')
 		for score, pos in zip(probability, y_pos):  
-			bx.text(score + 5, pos, '%.4f' % score, ha='center', va='center', fontsize=6)
+			bx.text(score + 7, pos, '%.4f' % score, ha='center', va='center', fontsize=6)
 		fig.tight_layout(rect=(0,0,0.95,0.9))  #the distance between the subplot 
 		# print(help(fig.tight_layout))   #(left, bottom, right, top) (0, 0, 1, 1)
 		plt.show() 
@@ -112,5 +114,39 @@ if __name__ == '__main__':
 	image_file2 = caffe_root + 'data/image/test/1_305.jpg'
 	image_list = [image_file, image_file2]
 	net1 = Net_Object(net_file, caffe_model, mean_file, labels_file)
-	net1.prediction(image_file)
-	net1.show_image()
+	# net1.prediction(image_file)
+	# net1.show_image()
+	test_img_list = os.listdir(caffe_root + 'data/image/test')
+	# print(test_img_list)
+	total_num = len(test_img_list)
+	correct_num = 0
+	accuracy = 0
+	class_correct_num = [0 for i in range(10)]
+	# print(class_correct_num)
+	labels = np.loadtxt(labels_file, str, delimiter='\n')
+	count_num = 0   # count the predicted number
+	for i in range(len(test_img_list)):
+		img = test_img_list[i]
+		img_path = caffe_root + 'data/image/test/' + img    # present the path 
+		true_num = eval(img.strip().split('_')[0])          # get the ture label num of the image,conver to int
+		predict_num = net1.prediction(img_path)
+		# print('***************')
+		# print('predict_num:', predict_num)
+		# print('true_num:', true_num)
+		# print('***************')
+		if predict_num == true_num:                        # predict correctly
+			correct_num = correct_num + 1                  # all class count 
+			class_correct_num[true_num] = class_correct_num[true_num] + 1  # current class count 
+		count_num = count_num + 1
+		print('  ', count_num)
+
+	print('---------------------------------------------------')
+	print('     class_name  ', 'correct number')	
+	for i in range(len(labels)):
+		print('{:>15}{:^12}'.format(labels[i], class_correct_num[i]))
+	print()
+	print('correct number:', correct_num)
+	print('total_num:', total_num)
+	print('accuracy:', correct_num*1.0/total_num)
+	print('---------------------------------------------------')
+
